@@ -3,7 +3,7 @@ import { User } from "../models/User"
 import { NotFoundError } from "@cse-350/shared-library"
 import { Review } from "../models/Review"
 const router = express.Router()
-
+// rout
 router.get("/api/users/:id", async (req: Request, res: Response) => {
   const user = await User.findById({ _id: req.params.id })
   if (!user) throw new NotFoundError()
