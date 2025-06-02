@@ -16,6 +16,14 @@ spec:
         - name: skilltrade-auth
           image: whispernet/skilltrade-auth
           env:
+            - name: NATS_CLUSTER_ID
+              value: skilltrade
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: "http://nats-srv:4222"
             - name: MONGO_URI
               value: "mongodb://skilltrade-auth-mongodb-srv:27017/skilltrade-auth"
             - name: JWT_KEY
