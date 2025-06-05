@@ -27,10 +27,6 @@ router.post(
   setCurrentUser,
   [
     body("fullName").trim().notEmpty().withMessage("Full name is required"),
-    body("password")
-      .trim()
-      .isLength({ min: 4, max: 20 })
-      .withMessage("Password must be between 4 and 20 char long"),
     body("description").trim().notEmpty().withMessage("Description is required"),
     body("occupation")
       .trim()
@@ -66,7 +62,9 @@ router.post(
     user.description = description
     user.occupation = occupation
     user.availability = availability
-    user.password = password
+    if (password) {
+      user.password = password
+    }
     await user.save()
     const jsonToken = JWT.sign(
       {
