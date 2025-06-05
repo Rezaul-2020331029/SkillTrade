@@ -1,6 +1,6 @@
 {
 	"name": "@cse-350/shared-library",
-	"version": "1.0.5",
+	"version": "1.0.10",
 	"description": "Shared library for SkillTrade project",
 	"main": "./build/index.js",
 	"types": "./build/index.d.ts",
