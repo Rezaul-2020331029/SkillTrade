@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight, BookOpen, Users, Sparkles } from "lucide-react"
+import Link from "next/link"
 
 export default function Home() {
   return (
@@ -14,11 +15,13 @@ export default function Home() {
           enthusiasts in your community.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 mt-8">
-          <Button size="lg" className="gap-2">
-            Get Started <ArrowRight className="w-4 h-4" />
+          <Button size="lg" className="gap-2" asChild>
+            <Link href="/users/signup">
+              Get Started <ArrowRight className="w-4 h-4" />
+            </Link>
           </Button>
-          <Button size="lg" variant="outline">
-            Learn More
+          <Button size="lg" variant="outline" asChild>
+            <Link href="/learnmore">Learn More</Link>
           </Button>
         </div>
       </section>

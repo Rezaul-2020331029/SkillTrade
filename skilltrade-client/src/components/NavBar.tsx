@@ -1,6 +1,6 @@
 "use client"
 
-import { LogOut, Moon, Settings, Sun, User } from "lucide-react"
+import { Crown, LogOut, Moon, Sun, User } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -20,12 +20,13 @@ import client from "../../api/client"
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme()
-  const { currentUser, loading } = useCurrentUser()
+  const { currentUser, loading, setCurrentUser } = useCurrentUser()
   const router = useRouter()
 
   const handleLogout = async () => {
     try {
       await client({ req: {} }).post("/api/users/signout")
+      setCurrentUser(null)
       router.push("/")
     } catch (error) {
       console.error("Error signing out:", error)
@@ -46,14 +47,14 @@ const Navbar = () => {
         <Link href="/community">Community</Link>
         {currentUser && !loading && (
           <>
-            <Link href="/connected">Connected</Link>
-            <Link href="/requests">Requests</Link>
+            <Link href="/session">Connected</Link>
+            <Link href="/connections">Requested</Link>
           </>
         )}
         {!currentUser && !loading && (
           <>
-            <Link href="/sign-up">Sign Up</Link>
-            <Link href="/sign-in">Sign In</Link>
+            <Link href="/users/signup">Sign Up</Link>
+            <Link href="/users/signin">Sign In</Link>
           </>
         )}
         {/* THEME MENU */}
@@ -87,6 +88,12 @@ const Navbar = () => {
                 <Link href={`/users/${currentUser.id}`}>
                   <User className="h-[1.2rem] w-[1.2rem] mr-2" />
                   Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/premium`}>
+                  <Crown className="h-[1.2rem] w-[1.2rem] mr-2" />
+                  Go Premium
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem variant="destructive" onClick={handleLogout}>
