@@ -20,42 +20,18 @@ import { Button } from "@/components/ui/button"
 import EditUser from "@/components/EditUser"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import RatingBarChart from "@/components/RatingBarChart"
-import axios from "axios"
-import CardList from "@/components/CardList"
-import { Badge } from "@/components/ui/badge"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
-import { Crown, Star, Shield, Trophy, User, Award } from "lucide-react"
-import { Sheet, SheetTrigger } from "@/components/ui/sheet"
-import { Button } from "@/components/ui/button"
-import EditUser from "@/components/EditUser"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import RatingBarChart from "@/components/RatingBarChart"
 
 interface User {
   id: string
   email: string
-  id: string
-  email: string
   profilePicture: string
-  fullName: string
   fullName: string
   description: string
   occupation: "professional" | "student" | "freelancer" | "entrepreneur" | "other"
-  occupation: "professional" | "student" | "freelancer" | "entrepreneur" | "other"
   availability: string[]
-  gender: "male" | "female" | "other"
   gender: "male" | "female" | "other"
   sessionsTaught: number
   isPremium: boolean
-  avgRating: number
   avgRating: number
   is5Star: boolean
   isExperiencedTeacher: boolean
@@ -78,9 +54,7 @@ interface Review {
 const SingleUserPage = () => {
   const params = useParams()
   const userId = params.id as string
-  const userId = params.id as string
   const [user, setUser] = useState<User | null>(null)
-  const [reviews, setReviews] = useState<Review[]>([])
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [reviewsLoading, setReviewsLoading] = useState(true)
@@ -99,31 +73,10 @@ const SingleUserPage = () => {
     }
     fetchCurrentUser()
   }, [])
-  const [reviewsLoading, setReviewsLoading] = useState(true)
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
-  const [editOpen, setEditOpen] = useState(false)
-
-  useEffect(() => {
-    // Fetch current user
-    const fetchCurrentUser = async () => {
-      try {
-        const response = await axios.get("/api/users/currentuser")
-        setCurrentUserId(response.data.currentUser?.id || null)
-      } catch (error) {
-        setCurrentUserId(null)
-      }
-    }
-    fetchCurrentUser()
-  }, [])
 
   useEffect(() => {
     const fetchUser = async () => {
-    const fetchUser = async () => {
       try {
-        const response = await axios.get(`/api/users/${userId}`)
-        setUser(response.data)
-      } catch (error) {
-        console.error("Error fetching user:", error)
         const response = await axios.get(`/api/users/${userId}`)
         setUser(response.data)
       } catch (error) {

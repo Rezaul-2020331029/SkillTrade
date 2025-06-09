@@ -18,6 +18,7 @@ import {
   GraduationCap,
   Clock,
   User,
+  Users,
 } from "lucide-react"
 import buildClient from "../../../../api/client"
 import { useCurrentUser } from "@/contexts/CurrentUserContext"
@@ -47,6 +48,8 @@ interface Post {
   content: string
   availability: string[]
   likes?: string[]
+  connections?: string[]
+  connectionAccepted?: string[]
   toTeach: string[]
   toLearn: string[]
   createdAt: string
@@ -61,6 +64,7 @@ export default function CommunityPage() {
   const [loading, setLoading] = useState(true)
   const [isLiking, setIsLiking] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isConnecting, setIsConnecting] = useState(false)
   const [editSheetOpen, setEditSheetOpen] = useState(false)
 
   const fetchPost = async () => {
@@ -126,6 +130,35 @@ export default function CommunityPage() {
     }
   }
 
+  const handleConnection = async () => {
+    if (!currentUser || isConnecting) return
+
+    setIsConnecting(true)
+    try {
+      const client = buildClient({ req: {} })
+      await client.post(`/api/community/posts/${id}/connection`)
+
+      // Update the local state
+      setPost(prevPost => {
+        if (!prevPost) return null
+
+        const currentConnections = prevPost.connections || []
+        const isCurrentlyConnected = currentConnections.includes(currentUser.id)
+
+        return {
+          ...prevPost,
+          connections: isCurrentlyConnected
+            ? currentConnections.filter(userId => userId !== currentUser.id)
+            : [...currentConnections, currentUser.id],
+        }
+      })
+    } catch (error) {
+      console.error("Error handling connection:", error)
+    } finally {
+      setIsConnecting(false)
+    }
+  }
+
   const handlePostUpdated = (updatedPost: Post) => {
     setPost(updatedPost)
     setEditSheetOpen(false)
@@ -169,9 +202,12 @@ export default function CommunityPage() {
   }
 
   const isAuthor = currentUser?.id === post.authorId
-  const isLiked = currentUser && post.likes?.includes(currentUser.id)
+  const isLiked = !!(currentUser && post.likes?.includes(currentUser.id))
+  const isConnected = !!(currentUser && post.connections?.includes(currentUser.id))
+  const isConnectionAccepted = !!(currentUser && post.connectionAccepted?.includes(currentUser.id))
   const likeCount = post.likes?.length || 0
-  const canEdit = isAuthor && currentUser?.isPremium
+  const connectionCount = post.connections?.length || 0
+  const canEdit = isAuthor && currentUser?.isPremium && connectionCount === 0
 
   return (
     <TooltipProvider>
@@ -224,6 +260,34 @@ export default function CommunityPage() {
                   </Button>
                 )}
 
+                {/* Connection Button */}
+                {currentUser && !isAuthor && (
+                  <Button
+                    variant={isConnectionAccepted ? "default" : isConnected ? "outline" : "outline"}
+                    size="sm"
+                    onClick={handleConnection}
+                    disabled={isConnecting || isConnectionAccepted}
+                    className={`flex items-center space-x-1 ${
+                      isConnectionAccepted
+                        ? "bg-green-500 hover:bg-green-500 text-white opacity-75 cursor-not-allowed"
+                        : isConnected
+                        ? "border-orange-500 text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-950"
+                        : "border-blue-500 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950"
+                    }`}
+                  >
+                    <Users className="h-4 w-4" />
+                    <span>
+                      {isConnecting
+                        ? "..."
+                        : isConnectionAccepted
+                        ? "Connected"
+                        : isConnected
+                        ? "Requested"
+                        : "Connect"}
+                    </span>
+                  </Button>
+                )}
+
                 {/* Edit/Delete Buttons for Author */}
                 {isAuthor && (
                   <>
@@ -254,7 +318,13 @@ export default function CommunityPage() {
                       </TooltipTrigger>
                       {!canEdit && (
                         <TooltipContent>
-                          <p>Only premium users can edit posts</p>
+                          <p>
+                            {!currentUser?.isPremium
+                              ? "Only premium users can edit posts"
+                              : connectionCount > 0
+                              ? "Cannot edit posts with existing connections"
+                              : "Cannot edit this post"}
+                          </p>
                         </TooltipContent>
                       )}
                     </Tooltip>
@@ -380,6 +450,20 @@ export default function CommunityPage() {
                   <HeartHandshake className="h-4 w-4 text-orange-500" />
                   <span>
                     {likeCount} {likeCount === 1 ? "person likes" : "people like"} this post
+                  </span>
+                </div>
+              </>
+            )}
+
+            {/* Connection Count Display */}
+            {connectionCount > 0 && (
+              <>
+                <Separator />
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                  <Users className="h-4 w-4 text-blue-500" />
+                  <span>
+                    {connectionCount}{" "}
+                    {connectionCount === 1 ? "connection request" : "connection requests"}
                   </span>
                 </div>
               </>
